@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Number Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 50px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      animation: slideIn 0.5s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 2.5em;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 40px;
+      font-size: 1em;
+    }
+
+    .status {
+      padding: 15px;
+      margin-bottom: 30px;
+      border-radius: 10px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .status.available {
+      background-color: #d4edda;
+      color: #155724;
+      border: 2px solid #28a745;
+    }
+
+    .status.unavailable {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 2px solid #f5c6cb;
+    }
+
+    .status.active {
+      background-color: #cfe2ff;
+      color: #084298;
+      border: 2px solid #b6d4fe;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .btn-generate {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-generate:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-generate:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-end {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .btn-end:hover:not(:disabled) {
+      background-color: #c82333;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(220, 53, 69, 0.4);
+    }
+
+    .btn-end:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .number-display {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      animation: pulse 0.5s ease-out;
+    }
+
+    @keyframes pulse {
+      from {
+        transform: scale(0.95);
+        opacity: 0.8;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .number-label {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+      opacity: 0.9;
+    }
+
+    .number-value {
+      font-size: 4em;
+      font-weight: bold;
+      letter-spacing: 10px;
+    }
+
+    .error {
+      color: #dc3545;
+      padding: 15px;
+      background-color: #f8d7da;
+      border: 2px solid #f5c6cb;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .error.show {
+      display: block;
+      animation: shake 0.5s ease-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .player-id {
+      font-size: 0.9em;
+      color: #666;
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f5f5f5;
+      border-radius: 5px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 30px;
+      }
+
+      h1 {
+        font-size: 2em;
+      }
+
+      .number-value {
+        font-size: 3em;
+      }
+
+      button {
+        min-width: 120px;
+        padding: 12px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎲 Random Number</h1>
+    <p class="subtitle">Generator (1-100)</p>
+
+    <div id="error" class="error"></div>
+
+    <div id="status" class="status available">
+      ✓ Ready to Generate
+    </div>
+
+    <div class="number-display" id="numberDisplay" style="display: none;">
+      <div class="number-label">Your Number:</div>
+      <div class="number-value" id="numberValue">-</div>
+    </div>
+
+    <div class="button-group">
+      <button class="btn-generate" id="generateBtn" onclick="generateNumber()">
+        Generate Number
+      </button>
+      <button class="btn-end" id="endBtn" onclick="endSession()" style="display: none;">
+        End Session
+      </button>
+    </div>
+
+    <div class="player-id">
+      <strong>Player ID:</strong> <span id="playerId">-</span>
+    </div>
+  </div>
+
+  <script>
+    let playerId = null;
+    let isSessionActive = false;
+
+    // Generate unique player ID
+    function initializePlayer() {
+      playerId = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      document.getElementById('playerId').textContent = playerId.substring(0, 20) + '...';
+    }
+
+    // Generate random number
+    async function generateNumber() {
+      const errorDiv = document.getElementById('error');
+      errorDiv.classList.remove('show');
+
+      try {
+        const response = await fetch(`/api/number?playerId=${playerId}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          document.getElementById('numberValue').textContent = data.number;
+          document.getElementById('numberDisplay').style.display = 'flex';
+          document.getElementById('generateBtn').disabled = true;
+          document.getElementById('endBtn').style.display = 'inline-block';
+          isSessionActive = true;
+
+          updateStatus('Your session is active!', 'active');
+        } else {
+          showError(data.error || 'Failed to generate number');
+          updateStatus('Another player is in session', 'unavailable');
+        }
+      } catch (error) {
+        showError('Error: ' + error.message);
+      }
+    }
+
+    // End session
+    async function endSession() {
+      try {
+        const response = await fetch('/api/end-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ playerId })
+        });
+
+        if (response.ok) {
+          resetUI();
+          updateStatus('✓ Ready to Generate', 'available');
+        }
+      } catch (error) {
+        showError('Error ending session: ' + error.message);
+      }
+    }
+
+    // Reset UI
+    function resetUI() {
+      document.getElementById('numberDisplay').style.display = 'none';
+      document.getElementById('numberValue').textContent = '-';
+      document.getElementById('generateBtn').disabled = false;
+      document.getElementById('endBtn').style.display = 'none';
+      isSessionActive = false;
+    }
+
+    // Update status
+    function updateStatus(message, type) {
+      const statusDiv = document.getElementById('status');
+      statusDiv.textContent = message;
+      statusDiv.className = 'status ' + type;
+    }
+
+    // Show error
+    function showError(message) {
+      const errorDiv = document.getElementById('error');
+      errorDiv.textContent = '❌ ' + message;
+      errorDiv.classList.add('show');
+    }
+
+    // Initialize
+    window.addEventListener('load', () => {
+      initializePlayer();
+    });
+
+    // Cleanup on page leave
+    window.addEventListener('beforeunload', () => {
+      if (isSessionActive) {
+        navigator.sendBeacon('/api/end-session', JSON.stringify({ playerId }));
+      }
+    });
+  </script>
+</body>
+</html>
